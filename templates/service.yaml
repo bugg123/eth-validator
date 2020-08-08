@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "eth-validator.fullname" . }}
+  labels:
+    {{- include "eth-validator.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 4000
+      protocol: TCP
+      name: rcp
+    - port: 13000
+      protocol: TCP
+      name: p2p-tcp
+  selector:
+    {{- include "eth-validator.selectorLabels" . | nindent 4 }}
