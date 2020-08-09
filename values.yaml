@@ -22,6 +22,13 @@ slasher:
     pullPolicy: IfNotPresent
     tag: "latest"
 
+geth:
+  enabled: false
+  image:
+    repository: ethereum/client-go
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
 imagePullSecrets: []
 nameOverride: "prysm"
 fullnameOverride: "prysm"
