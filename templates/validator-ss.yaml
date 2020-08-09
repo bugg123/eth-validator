@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "eth-validator.fullname" . }}-validator
+  labels:
+    {{- include "eth-validator.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "eth-validator.selectorLabels" . | nindent 6 }}
+  serviceName: "validator"
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "eth-validator.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "eth-validator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.validator.image.repository }}:{{ .Values.validator.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "--beacon-rpc-provider={{ include "eth-validator.fullname" . }}:4000"
+            - "--wallet-dir=/data/wallet"
+            - "--wallet-password-file=/data/wallet/password"
+          ports:
+            - name: rpc
+              containerPort: 4000
+              protocol: TCP
+            - name: p2p-tcp
+              containerPort: 13000
+              protocol: TCP
+            - name: p2p-udp
+              containerPort: 12000
+              protocol: UDP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /data/wallet/direct/accounts/all-accounts.keystore.json
+            name: keystore
+            subPath: all-accounts.keystore.json
+          - mountPath: /data/wallet/direct/keymanageropts.json
+            name: keymanager
+            subPath: keymanageropts.json
+          - mountPath: /data/wallet/password
+            subPath: password
+            name: wallet-password
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: keystore
+        secret:
+          secretName: keystore
+      - name: keymanager
+        secret:
+          secretName: keymanager
+      - name: wallet-password
+        secret:
+          secretName: wallet-password

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "eth-validator.fullname" . }}
+  name: {{ include "eth-validator.fullname" . }}-beacon
   labels:
     {{- include "eth-validator.labels" . | nindent 4 }}
 spec:

@@ -10,9 +10,21 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
+validator:
+  image:
+    repository: gcr.io/prysmaticlabs/prysm/validator
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+slasher:
+  image:
+    repository: gcr.io/prysmaticlabs/prysm/slasher
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: "prysm"
+fullnameOverride: "prysm"
 
 serviceAccount:
   # Specifies whether a service account should be created
